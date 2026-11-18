@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✨⛓️ Doggy Bot Rep Version⚡✨ - Web App</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- html2canvas (Para JPG) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- jsPDF (Para PDF) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body class="bg-[#090d16] text-slate-100 min-h-screen font-sans pb-16">
+
+    <div class="max-w-4xl mx-auto p-4 md:p-8">
+        <!-- Header Estilo Reputation -->
+        <header class="text-center mb-8 border-b border-slate-800 pb-5">
+            <h1 class="text-2xl md:text-3xl font-extrabold tracking-wide text-white">✨⛓️ Doggy Bot Rep Version⚡✨</h1>
+            <p class="text-amber-400 text-xs md:text-sm font-semibold mt-1">Organizador Cognitivo Adaptativo • VAK & Kolb Engine</p>
+        </header>
+
+        <!-- Contenedor del Chat Interactivo -->
+        <div class="bg-[#111726] rounded-2xl border border-slate-800 shadow-2xl p-5 md:p-7 space-y-6">
+            
+            <!-- Mensaje Inicial -->
+            <div class="flex items-start space-x-3">
+                <div class="w-10 h-10 rounded-full bg-slate-800 border border-amber-500/50 flex items-center justify-center text-lg shadow-lg">🐶</div>
+                <div class="bg-[#172033] p-4 rounded-xl max-w-2xl text-sm border border-slate-700/60 space-y-3 leading-relaxed">
+                    <p class="font-medium text-white">¡Hola! Te ayudaré a organizar tu tiempo adaptándolo a tu forma óptima de asimilar información. Para empezar:</p>
+                    <p class="text-xs text-amber-300 font-bold uppercase tracking-wider">1. Selecciona tu perfil principal:</p>
+                    
+                    <div id="role-selector" class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                        <button onclick="setRole('student')" class="bg-slate-800 hover:bg-indigo-900 border border-slate-700 hover:border-indigo-400 p-2.5 rounded-lg text-xs font-semibold transition text-left">
+                            🎓 Estudiante (Colegio / Uni)
+                        </button>
+                        <button onclick="setRole('general')" class="bg-slate-800 hover:bg-slate-750 border border-slate-700 hover:border-amber-400 p-2.5 rounded-lg text-xs font-semibold transition text-left">
+                            💼 Profesional / Trabajo / General
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paso 2: Horarios Ocupados -->
+            <div id="step-busy" class="hidden flex items-start space-x-3">
+                <div class="w-10 h-10 rounded-full bg-slate-800 border border-amber-500/50 flex items-center justify-center text-lg">⏰</div>
+                <div class="bg-[#172033] p-4 rounded-xl max-w-2xl text-sm border border-slate-700/60 space-y-3 w-full">
+                    <p class="font-medium text-white">¿En qué horarios estás habitualmente <b>ocupado</b>? (Selecciona hasta 3 franjas):</p>
+                    <p id="busy-counter" class="text-xs text-slate-400 font-mono">Ocupaciones actuales: <span class="text-amber-400 font-bold">Ninguna</span></p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                        <button onclick="addBusy('Mañana (08:00 - 13:00)')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 p-2 rounded text-xs text-left">☀️ Mañanas (08:00 - 13:00)</button>
+                        <button onclick="addBusy('Tarde (13:00 - 18:00)')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 p-2 rounded text-xs text-left">⛅ Tardes (13:00 - 18:00)</button>
+                        <button onclick="addBusy('Noche (18:00 - 22:00)')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 p-2 rounded text-xs text-left">🌙 Noches (18:00 - 22:00)</button>
+                        <button onclick="addCustomBusy()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 p-2 rounded text-xs text-left text-slate-300">✍️ Escribir otra franja...</button>
+                    </div>
+
+                    <div class="flex gap-2 pt-2 border-t border-slate-700/60">
+                        <button onclick="proceedToActivities()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg text-xs font-bold transition">Listo, continuar ➡️</button>
+                        <button onclick="resetBusy()" class="bg-rose-950/60 hover:bg-rose-900 border border-rose-800 text-rose-300 px-3 py-2 rounded-lg text-xs transition">Limpiar</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Paso 3: Actividades -->
+            <div id="step-activities" class="hidden flex items-start space-x-3">
+                <div class="w-10 h-10 rounded-full bg-slate-800 border border-amber-500/50 flex items-center justify-center text-lg">📚</div>
+                <div class="bg-[#172033] p-4 rounded-xl max-w-2xl text-sm border border-slate-700/60 space-y-3 w-full">
+                    <p class="font-medium text-white">¿En qué actividad inviertes la mayor parte de tu tiempo de estudio libre?</p>
+                    <div id="activity-options" class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1"></div>
+                </div>
+            </div>
+
+            <!-- Paso 4: Estilo de Retención -->
+            <div id="step-styles" class="hidden flex items-start space-x-3">
+                <div class="w-10 h-10 rounded-full bg-slate-800 border border-amber-500/50 flex items-center justify-center text-lg">⚡</div>
+                <div class="bg-[#172033] p-4 rounded-xl max-w-2xl text-sm border border-slate-700/60 space-y-3 w-full">
+                    <p class="font-medium text-white">¿Cómo retienes y aprendes mejor la información?</p>
+                    <div class="space-y-2 pt-1">
+                        <button onclick="setStyle('action')" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 p-2.5 rounded-lg text-xs text-left block">
+                            <b>⚡ Haciendo de inmediato:</b> Práctica directa, ensayo y error antes de tanta teoría.
+                        </button>
+                        <button onclick="setStyle('theory')" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 p-2.5 rounded-lg text-xs text-left block">
+                            <b>📖 Analizando la teoría:</b> Estructurar conceptos, mapas mentales y notas primero.
+                        </button>
+                        <button onclick="setStyle('talk')" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 p-2.5 rounded-lg text-xs text-left block">
+                            <b>🗣️ En voz alta y debate:</b> Explicar el tema a otros o escuchar repasos hablados.
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Razonamiento & Recomendaciones Profundas -->
+            <div id="step-diagnosis" class="hidden bg-[#0e1424] border border-amber-500/40 rounded-xl p-5 space-y-4">
+                <div class="flex items-center space-x-2 text-amber-400">
+                    <span class="text-xl">🧠</span>
+                    <h3 class="font-bold text-sm tracking-wide uppercase">Diagnóstico Cognitivo y Recomendaciones Profundas</h3>
+                </div>
+
+                <p id="thought-text" class="text-xs text-slate-300 italic border-l-2 border-amber-500 pl-3 leading-relaxed"></p>
+
+                <!-- Cuadro de Técnicas Profundas -->
+                <div class="bg-[#151c30] p-4 rounded-lg border border-slate-700/80 space-y-3">
+                    <h4 class="text-xs font-bold text-indigo-300 uppercase tracking-wider">📌 Plan de Aprendizaje Específico Recomendado:</h4>
+                    <div id="deep-recommendations" class="text-xs text-slate-300 space-y-2 font-mono"></div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pt-2">
+                    <span id="assigned-badge" class="text-xs font-bold bg-amber-950/60 border border-amber-500 text-amber-300 px-3 py-1 rounded-full"></span>
+                    <button onclick="generateScheduleCard()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs px-6 py-2.5 rounded-lg transition shadow-lg">
+                        ✨ Generar Mi Horario
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vista del Horario & Descarga -->
+        <div id="schedule-section" class="hidden mt-8 space-y-4">
+            <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+                <h2 class="text-lg font-bold text-slate-200">Tu Horario Estético Generado</h2>
+                <div id="download-actions" class="flex gap-2">
+                    <button onclick="downloadJPG()" class="bg-indigo-600 hover:bg-indigo-500 px-4 py-2 rounded-lg text-xs font-bold transition">🖼️ Guardar JPG</button>
+                    <button onclick="downloadPDF()" class="bg-amber-600 hover:bg-amber-500 px-4 py-2 rounded-lg text-xs font-bold transition">📄 Guardar PDF</button>
+                </div>
+            </div>
+
+            <!-- Tarjeta que se captura a JPG / PDF -->
+            <div id="schedule-card" class="bg-[#090d16] p-6 rounded-2xl border border-slate-800 shadow-2xl space-y-6">
+                <div class="text-center space-y-1">
+                    <h3 class="text-lg font-black tracking-wider text-white">CRONOGRAMA SEMANAL ADAPTATIVO</h3>
+                    <p id="card-subtitle" class="text-xs font-bold text-amber-400"></p>
+                </div>
+
+                <!-- Grid de 5 Días Separados -->
+                <div class="grid grid-cols-1 sm:grid-cols-5 gap-3" id="days-grid"></div>
+
+                <p class="text-[10px] text-center font-bold text-slate-600 tracking-widest pt-2">DOGGY BOT REP VERSION • PLANIFICACION DE ALTO RENDIMIENTO</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de Lógica Web -->
+    <script>
+        const state = {
+            role: "general",
+            busy: [],
+            activity: "",
+            style: "",
+            model: "",
+            thought: "",
+            recommendations: {}
+        };
+
+        function setRole(r) {
+            state.role = r;
+            document.getElementById('step-busy').classList.remove('hidden');
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        function addBusy(slot) {
+            if (state.busy.length < 3 && !state.busy.includes(slot)) {
+                state.busy.push(slot);
+                updateBusyUI();
+            }
+        }
+
+        function addCustomBusy() {
+            const custom = prompt("Escribe tu franja ocupada (Ej: Clases de Música 16:00 - 18:00):");
+            if (custom && custom.trim() !== "") {
+                addBusy(custom.trim());
+            }
+        }
+
+        function resetBusy() {
+            state.busy = [];
+            updateBusyUI();
+        }
+
+        function updateBusyUI() {
+            const counter = document.getElementById('busy-counter');
+            counter.innerHTML = `Ocupaciones actuales: <span class="text-amber-400 font-bold">${state.busy.length > 0 ? state.busy.join(', ') : 'Ninguna'}</span>`;
+        }
+
+        function proceedToActivities() {
+            const actsContainer = document.getElementById('activity-options');
+            actsContainer.innerHTML = "";
+
+            const studentActs = [
+                { id: "tasks", label: "🎒 Tareas y Deberes escolares" },
+                { id: "theory", label: "📖 Lectura teórica / Repaso de exámenes" },
+                { id: "practice", label: "💻 Programación / Práctica / Laboratorio" },
+                { id: "visual", label: "🎥 Videos / Tutoriales explicativos" }
+            ];
+
+            const generalActs = [
+                { id: "practice", label: "💻 Programación / Práctica Técnica" },
+                { id: "theory", label: "📚 Lectura de Libros y Documentación" },
+                { id: "visual", label: "🎥 Cursos en Video y Gráficos" },
+                { id: "audio", label: "🎧 Podcasts y Clases habladas" }
+            ];
+
+            const list = state.role === "student" ? studentActs : generalActs;
+            list.forEach(a => {
+                actsContainer.innerHTML += `
+                    <button onclick="setActivity('${a.id}')" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 p-2.5 rounded-lg text-xs text-left block">
+                        ${a.label}
+                    </button>
+                `;
+            });
+
+            document.getElementById('step-activities').classList.remove('hidden');
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        function setActivity(act) {
+            state.activity = act;
+            document.getElementById('step-styles').classList.remove('hidden');
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        function setStyle(st) {
+            state.style = st;
+            runDeepDiagnosis();
+        }
+
+        function runDeepDiagnosis() {
+            let model = "";
+            let thought = "";
+            let recs = {};
+
+            const isStudent = state.role === "student";
+            const sPref = isStudent ? "Como estudiante, necesitas equilibrar clases y consolidación profunda. " : "";
+
+            if (state.style === "action") {
+                if (state.activity === "practice" || state.activity === "tasks") {
+                    model = "Kolb - Convergente";
+                    thought = sPref + "Tu fortaleza cognitiva es la resolución directa de problemas prácticos y la experimentación activa.";
+                    recs = {
+                        retention: "Aprendizaje Basado en Problemas (PBL): 20% lectura de conceptos, 80% código o ejercicios directos.",
+                        focus: "Micro-sprints de 30 minutos enfocados en resolver una sola duda o feature.",
+                        tools: "LeetCode, VS Code, Notion (para registrar errores resueltos).",
+                        fatigue: "Evita estudiar después de 3 horas continuas sin haber caminado o cambiado de postura."
+                    };
+                } else {
+                    model = "VAK - Kinestésico";
+                    thought = sPref + "Asimilas la información cuando hay movimiento físico y dinamismo en tus sesiones.";
+                    recs = {
+                        retention: "Flashcards interactivas y tarjetas físicas de repaso rápido.",
+                        focus: "Pomodoro Dinámico (25m estudio / 5m de calistenia suave o caminata activa).",
+                        tools: "Anki con atajos de teclado, tableros Kanban físicos.",
+                        fatigue: "Alterna el lugar de estudio entre bloques (escritorio y sala de estar)."
+                    };
+                }
+            } else if (state.style === "theory") {
+                if (state.activity === "visual") {
+                    model = "VAK - Visual";
+                    thought = sPref + "Tu mente estructura ideas mediante relaciones espaciales, colores y jerarquías gráficas.";
+                    recs = {
+                        retention: "Subrayado Lineal Jerárquico: Verde (ideas clave), Amarillo (conceptos), Rosa (ejemplos).",
+                        focus: "Método de Bloques Ultradianos (50m estudio profundo / 10m desconexión visual sin pantallas).",
+                        tools: "Excalidraw, XMind, Obsidian con vista de gráfico.",
+                        fatigue: "Aplica la regla 20-20-20 para evitar fatiga ocular frente a las pantallas."
+                    };
+                } else {
+                    model = "Kolb - Asimilador";
+                    thought = sPref + "Requieres fundamentar conceptos teóricos sólidos y sintetizarlos antes de cualquier ejecución.";
+                    recs = {
+                        retention: "Método Cornell de toma de notas estructuradas y cuadros sinópticos.",
+                        focus: "Lectura profunda en bloques continuos sin notificaciones de mensajería.",
+                        tools: "Zotero, Notion, cuadernos de hojas punteadas.",
+                        fatigue: "Cierra cada bloque con un resumen de 3 líneas con tus propias palabras."
+                    };
+                }
+            } else {
+                model = "VAK - Auditivo";
+                thought = sPref + "Tu retención máxima ocurre al verbalizar, escuchar y debatir conceptos.";
+                recs = {
+                    retention: "Técnica Feynman Hablada: Grábate en notas de voz explicando el tema como a un niño de 10 años.",
+                    focus: "Escuchar clases o podcasts temáticos a velocidad 1.25x tomando notas rápidas.",
+                    tools: "Grabadora de voz de teléfono, Speechify, salas de estudio por Discord.",
+                    fatigue: "Descansa tu voz y escucha música lo-fi o ruido marrón entre bloques."
+                };
+            }
+
+            state.model = model;
+            state.thought = thought;
+            state.recommendations = recs;
+
+            // Renderizar Diagnóstico
+            document.getElementById('thought-text').innerText = thought;
+            document.getElementById('assigned-badge').innerText = `MODELO: ${model}`;
+
+            const recBox = document.getElementById('deep-recommendations');
+            recBox.innerHTML = `
+                <p>🔹 <b>Técnica de Retención:</b> ${recs.retention}</p>
+                <p>🔹 <b>Ritmo de Enfoque:</b> ${recs.focus}</p>
+                <p>🔹 <b>Herramientas Digitales:</b> ${recs.tools}</p>
+                <p>🔹 <b>Consejo Antifatiga:</b> ${recs.fatigue}</p>
+            `;
+
+            document.getElementById('step-diagnosis').classList.remove('hidden');
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        function generateScheduleCard() {
+            document.getElementById('card-subtitle').innerText = `PERFIL: ${state.role.toUpperCase()}   |   MODELO: ${state.model.toUpperCase()}`;
+            const grid = document.getElementById('days-grid');
+            grid.innerHTML = "";
+
+            const days = ['LUNES', 'MARTES', 'MIÉRCOLES', 'JUEVES', 'VIERNES'];
+            const busyStr = state.busy.join(" ").toLowerCase();
+
+            days.forEach(day => {
+                const dayCol = document.createElement('div');
+                dayCol.className = "space-y-3";
+
+                dayCol.innerHTML = `
+                    <div class="bg-[#1e293b] border border-slate-700 py-2 rounded-xl text-center font-bold text-xs text-slate-200">
+                        ${day}
+                    </div>
+                `;
+
+                // Bloque Mañana
+                const mBusy = busyStr.includes("mañana") || busyStr.includes("08");
+                dayCol.innerHTML += createBlock("08:30 - 12:30", mBusy ? "● OCUPADO" : "● FOCO PROFUNDO", mBusy ? "Clases / Trabajo" : "Teoría y Conceptos", mBusy);
+
+                // Bloque Tarde
+                const tBusy = busyStr.includes("tarde") || busyStr.includes("13");
+                dayCol.innerHTML += createBlock("14:00 - 17:30", tBusy ? "● OCUPADO" : "● APLICACIÓN", tBusy ? "Clases / Trabajo" : "Práctica y Ejercicios", tBusy);
+
+                // Bloque Noche
+                const nBusy = busyStr.includes("noche") || busyStr.includes("18");
+                dayCol.innerHTML += createBlock("18:30 - 21:00", nBusy ? "● OCUPADO" : "● CONSOLIDACIÓN", nBusy ? "Clases / Trabajo" : "Repaso Activo", nBusy);
+
+                grid.appendChild(dayCol);
+            });
+
+            document.getElementById('schedule-section').classList.remove('hidden');
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        }
+
+        function createBlock(time, title, desc, isBusy) {
+            const bg = isBusy ? "bg-[#2d0c11] border-[#f43f5e] text-rose-200" : "bg-[#171a38] border-[#6366f1] text-indigo-200";
+            return `
+                <div class="${bg} border rounded-xl p-3 space-y-1 shadow-md">
+                    <span class="block text-[10px] text-slate-400 font-mono">${time}</span>
+                    <span class="block text-xs font-bold text-white">${title}</span>
+                    <span class="block text-[11px] opacity-80">${desc}</span>
+                </div>
+            `;
+        }
+
+        function downloadJPG() {
+            const target = document.getElementById('schedule-card');
+            html2canvas(target, { backgroundColor: '#090d16', scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Horario_DoggyBot.jpg';
+                link.href = canvas.toDataURL('image/jpeg', 0.95);
+                link.click();
+            });
+        }
+
+        function downloadPDF() {
+            const { jsPDF } = window.jspdf;
+            const target = document.getElementById('schedule-card');
+
+            html2canvas(target, { backgroundColor: '#090d16', scale: 2 }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('landscape', 'pt', 'a4');
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+                pdf.addImage(imgData, 'PNG', 0, 30, pdfWidth, pdfHeight);
+                pdf.save('Horario_DoggyBot.pdf');
+            });
+        }
+    </script>
+</body>
+</html>
