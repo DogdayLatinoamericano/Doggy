@@ -1,0 +1,45 @@
+function downloadTXT() {
+    const textContent = `=================================================================
+✨⛓️ DOGGY BOT REP VERSION ⚡✨
+GUÍA METODOLÓGICA DE APRENDIZAJE Y GESTIÓN DE TIEMPO
+=================================================================
+
+👤 PERFIL: ${state.role.toUpperCase()}
+🎯 MODELO COGNITIVO ASIGNADO: ${state.model.toUpperCase()}
+⏰ HORARIOS OCUPADOS BLOQUEADOS: ${state.busy.length > 0 ? state.busy.join(', ') : 'Ninguno (Día Libre)'}
+
+-----------------------------------------------------------------
+🧠 DIAGNÓSTICO Y RAZONAMIENTO DEL BOT:
+${state.thought}
+
+-----------------------------------------------------------------
+📌 PLAN DE APRENDIZAJE Y TÉCNICAS RECOMENDADAS:
+
+🔹 TÉCNICA DE RETENCIÓN:
+   ${state.recommendations.retention}
+
+🔹 RITMO DE ENFOQUE Y ESTUDIO:
+   ${state.recommendations.focus}
+
+🔹 HERRAMIENTAS DIGITALES RECOMENDADAS:
+   ${state.recommendations.tools}
+
+🔹 CONSEJO ANTIFATIGA:
+   ${state.recommendations.fatigue}
+
+-----------------------------------------------------------------
+⏰ DISTRIBUCIÓN HORARIA DEL CRONOGRAMA:
+- 08:30 a 12:30: FOCO PROFUNDO (Conceptos teóricos y comprensión)
+- 14:00 a 17:30: APLICACIÓN ACTIVA (Práctica, ejercicios y resolución)
+- 18:30 a 21:00: CONSOLIDACIÓN (Repaso activo y cierre del día)
+
+=================================================================
+Generado por Doggy Bot Rep Version • Planificación de Alto Rendimiento
+=================================================================`;
+
+    const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `Guia_De_Estudio_${state.model.replace(/\s+/g, '_')}.txt`;
+    link.click();
+}
